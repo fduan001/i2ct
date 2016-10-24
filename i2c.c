@@ -78,7 +78,7 @@ int i2c_write(int fd, unsigned char chipAddr, unsigned char alen, unsigned offse
 		default:
             if( verbose )
             {
-                I2C_ERR("fail: offset length should be 0-3\n");
+                I2C_ERR("fail: alen length should be 0-3\n");
             }
 			goto func_exit;
 			break;
@@ -231,8 +231,12 @@ void usage(void)
 	printf("\tbuffer\n");
 	printf("\t\tbuffer to stored the data to be written to slave devices\n");
 	printf("\ti.e:\n");
-	printf("\t\ti2c w 1 0x50 0x3 10 0x26 0x57 0x78 - write 10 bytes\n");
-	printf("\t\ti2c r 1 0x50 0x2 10 - read 10 bytes\n");
+	printf("\t\ti2c w 1 0x50 0x2 0x3 10 0x26 0x57 0x78 - write 10 bytes, alen is 2\n");
+	printf("\t\ti2c r 1 0x50 0x2 0x2 10 - read 10 bytes, alen is 2\n");
+	printf("\t\ti2c r 1 0x47 1 0x4 1 - read from register 0x4, chip address is 0x47, alen is 1\n");
+	printf("\t\ti2c p 20 - scan bus 20\n");
+	printf("\t\ti2c s 24 - scan bus 24\n");
+    printf("https://github.com/fduan001/i2ct\n");
     printf("Alipay: 13851724905, Donation welcome If you think it's usefull\n");
     return ;
 }
@@ -318,11 +322,19 @@ int main(int argc, char **argv)
                 return 250;
             }
 
-            option = argv[6];
-            if(1!=sscanf(option,"0x%x", (unsigned int*)&length) && 1!=sscanf(option, "%u", (unsigned int*)&length))
+            if( (ops == I2C_OPS_READ) && (argc == 6) )
             {
                 length = 1;
             }
+            else
+            {
+                option = argv[6];
+                if(1!=sscanf(option,"0x%x", (unsigned int*)&length) && 1!=sscanf(option, "%u", (unsigned int*)&length))
+                {
+                    length = 1;
+                }
+            }
+
         }
 
         buf = (char*)malloc(length);
