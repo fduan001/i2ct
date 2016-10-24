@@ -1,0 +1,2 @@
+CC=powerpc-fsl-gnu-gcc make
+CC=arm-gnu-gcc make
